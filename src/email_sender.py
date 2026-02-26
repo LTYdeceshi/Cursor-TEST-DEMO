@@ -2,8 +2,10 @@
 
 import logging
 import smtplib
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formataddr
 
 from .config import Config
 
@@ -19,8 +21,14 @@ def send_email(subject: str, html_body: str) -> None:
         raise ValueError("RECIPIENT_EMAIL is empty")
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = Config.SENDER_EMAIL
+    msg["Subject"] = Header(subject, "utf-8")
+
+    sender_name = Config.SENDER_NAME or Config.SMTP_USERNAME
+    if sender_name and "@" not in sender_name:
+        msg["From"] = formataddr((str(Header(sender_name, "utf-8")), Config.SENDER_EMAIL))
+    else:
+        msg["From"] = Config.SENDER_EMAIL
+
     msg["To"] = ", ".join(recipients)
 
     plain_text = (
@@ -29,11 +37,13 @@ def send_email(subject: str, html_body: str) -> None:
     msg.attach(MIMEText(plain_text, "plain", "utf-8"))
     msg.attach(MIMEText(html_body, "html", "utf-8"))
 
+    smtp_login = Config.get_smtp_login()
     logger.info(
-        "Connecting to %s:%s (SSL=%s) ...",
+        "Connecting to %s:%s (SSL=%s), login=%s ...",
         Config.SMTP_HOST,
         Config.SMTP_PORT,
         Config.SMTP_USE_SSL,
+        smtp_login,
     )
 
     if Config.SMTP_USE_SSL:
@@ -43,7 +53,7 @@ def send_email(subject: str, html_body: str) -> None:
         server.starttls()
 
     try:
-        server.login(Config.SMTP_USERNAME, Config.SMTP_PASSWORD)
+        server.login(smtp_login, Config.SMTP_PASSWORD)
         server.sendmail(Config.SENDER_EMAIL, recipients, msg.as_string())
         logger.info("Email sent to %s", ", ".join(recipients))
     finally:
