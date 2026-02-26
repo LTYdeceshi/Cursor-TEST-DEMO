@@ -1,13 +1,20 @@
 # 📰 Daily Hot News — 每日热点新闻邮件推送
 
-每天早上自动抓取前一天的热点新闻（国际 + 中国国内），生成精美 HTML 邮件并推送到指定邮箱。
+每天早上自动抓取前 24 小时的热点新闻（国内 + 国际），国际新闻自动翻译为中文，生成精美 HTML 邮件并推送到指定邮箱。
+
+## 特性
+
+- 🇨🇳 **国内热点优先** — 国内新闻排在邮件最前面
+- 🌍 **国际新闻中文化** — 自动翻译为中文，无阅读障碍
+- ⏰ **每日定时推送** — 北京时间每天早上 7:00 自动发送
+- 📊 **热度排序** — 百度热搜、今日头条按热度值排序
 
 ## 新闻来源
 
 | 类别 | 来源 |
 |------|------|
-| 🌍 国际 | BBC World News · Google News · Al Jazeera |
 | 🇨🇳 国内 | 百度热搜 · 微博热搜 · 今日头条 · Google News (中国) |
+| 🌍 国际 | BBC World News · Google News · Al Jazeera（自动翻译为中文） |
 
 ## 快速开始
 
@@ -61,12 +68,26 @@ make run       # 发送邮件
 
 ### 4. 定时任务（每天早上 7:00 自动推送）
 
+**方式一：一键配置（推荐）**
+
 ```bash
-# 编辑 crontab
+bash scripts/setup_cron.sh
+```
+
+**方式二：手动配置 crontab**
+
+```bash
 crontab -e
 
-# 添加以下行（每天北京时间早上 7:00 执行，UTC 23:00）
-0 23 * * * cd /path/to/project && python -m src.main >> /var/log/daily-news.log 2>&1
+# 添加以下行（北京时间 07:00 = UTC 23:00）
+0 23 * * * cd /path/to/project && /usr/bin/python3 -m src.main >> /var/log/daily-news.log 2>&1
+```
+
+**验证定时任务：**
+
+```bash
+crontab -l              # 查看当前定时任务
+tail -f /var/log/daily-news.log  # 查看运行日志
 ```
 
 ## 项目结构
@@ -76,8 +97,11 @@ crontab -e
 │   ├── main.py          # 入口：CLI 参数、流程编排
 │   ├── config.py         # 从环境变量加载配置
 │   ├── news_fetcher.py   # 多源新闻抓取（RSS + API）
+│   ├── translator.py     # Google Translate 国际新闻翻译
 │   ├── email_builder.py  # HTML 邮件模板渲染
 │   └── email_sender.py   # SMTP 邮件发送
+├── scripts/
+│   └── setup_cron.sh     # 一键配置定时任务
 ├── .env.example          # 环境变量示例
 ├── requirements.txt      # Python 依赖
 ├── Makefile             # 常用命令
