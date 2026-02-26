@@ -8,6 +8,7 @@ from pathlib import Path
 from .email_builder import build_html, build_subject
 from .email_sender import send_email
 from .news_fetcher import fetch_all_news
+from .translator import translate_news_items
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +58,9 @@ def main() -> None:
         logger.warning("未获取到任何新闻，请检查网络连接")
         sys.exit(1)
 
+    if news.international:
+        translate_news_items(news.international)
+
     subject = build_subject()
     html = build_html(news)
 
@@ -69,13 +73,13 @@ def main() -> None:
             print("\n" + "=" * 60)
             print(f"Subject: {subject}")
             print("=" * 60)
-            print(f"国际热点: {intl_count} 条")
-            for i, item in enumerate(news.international, 1):
-                print(f"  {i}. [{item.source}] {item.title}")
-            print(f"\n国内热点: {dom_count} 条")
+            print(f"国内热点: {dom_count} 条")
             for i, item in enumerate(news.domestic, 1):
                 score = f" 🔥{item.hot_score}" if item.hot_score else ""
                 print(f"  {i}. [{item.source}] {item.title}{score}")
+            print(f"\n国际热点 (已翻译): {intl_count} 条")
+            for i, item in enumerate(news.international, 1):
+                print(f"  {i}. [{item.source}] {item.title}")
             print("=" * 60)
         logger.info("Dry-run 完成，未发送邮件")
     else:

@@ -19,6 +19,7 @@ preview: ## 抓取新闻并保存为 HTML 文件预览
 lint: ## 运行代码检查
 	python3 -m py_compile src/config.py
 	python3 -m py_compile src/news_fetcher.py
+	python3 -m py_compile src/translator.py
 	python3 -m py_compile src/email_builder.py
 	python3 -m py_compile src/email_sender.py
 	python3 -m py_compile src/main.py

@@ -42,37 +42,10 @@ EMAIL_TEMPLATE = Template(
 <div class="container">
   <div class="header">
     <h1>📰 每日热点速递</h1>
-    <p>{{ date_str }} | 国际 &amp; 国内热点一览</p>
+    <p>{{ date_str }} | 国内 &amp; 国际热点一览</p>
   </div>
 
-  <!-- 国际热点 -->
-  <div class="section">
-    <div class="section-title">🌍 国际热点</div>
-    {% if international %}
-    <ul class="news-list">
-      {% for item in international %}
-      <li class="news-item">
-        <div class="news-title">
-          <span class="badge-intl">{{ item.source }}</span>
-          <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
-        </div>
-        {% if item.summary %}
-        <div class="news-summary">{{ item.summary }}</div>
-        {% endif %}
-        <div class="news-meta">
-          {% if item.published %}<span>🕐 {{ item.published }}</span>{% endif %}
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="empty-msg">暂无国际热点信息</p>
-    {% endif %}
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- 国内热点 -->
+  <!-- 国内热点 (放在前面) -->
   <div class="section">
     <div class="section-title">🇨🇳 国内热点</div>
     {% if domestic %}
@@ -95,6 +68,33 @@ EMAIL_TEMPLATE = Template(
     </ul>
     {% else %}
     <p class="empty-msg">暂无国内热点信息</p>
+    {% endif %}
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 国际热点 (已翻译为中文) -->
+  <div class="section">
+    <div class="section-title">🌍 国际热点</div>
+    {% if international %}
+    <ul class="news-list">
+      {% for item in international %}
+      <li class="news-item">
+        <div class="news-title">
+          <span class="badge-intl">{{ item.source }}</span>
+          <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+        </div>
+        {% if item.summary %}
+        <div class="news-summary">{{ item.summary }}</div>
+        {% endif %}
+        <div class="news-meta">
+          {% if item.published %}<span>🕐 {{ item.published }}</span>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty-msg">暂无国际热点信息</p>
     {% endif %}
   </div>
 
